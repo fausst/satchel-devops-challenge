@@ -1,0 +1,1 @@
+# Wordpress with MariaDB stack

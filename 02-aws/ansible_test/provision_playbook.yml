@@ -1,0 +1,11 @@
+---
+
+- name: Provision ec2 instance
+  hosts: 
+
+  vars_files:
+  - vars/
+
+  roles:
+    - { role:  }
+
