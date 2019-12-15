@@ -1,1 +1,0 @@
-# satchel-devops-challenge
