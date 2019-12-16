@@ -1,0 +1,80 @@
+version: '2'
+
+services:
+   nginx-proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - joomla_nw
+      - wordpress_nw
+   db_wordpress:
+     image: mariadb:10.2
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: somewordpress
+       MYSQL_DATABASE: wordpress
+       MYSQL_USER: wordpress
+       MYSQL_PASSWORD: wordpress
+     volumes:
+       - vm_wordpress:/var/lib/mysql
+     networks:
+       - wordpress_nw
+
+   wordpress:
+     depends_on:
+       - db_wordpress
+       - nginx-proxy
+     image: wordpress:latest
+     restart: always
+     expose:
+       - 80
+     environment:
+       WORDPRESS_DB_HOST: db_wordpress:3306
+       WORDPRESS_DB_USER: wordpress
+       WORDPRESS_DB_PASSWORD: wordpress
+       WORDPRESS_DB_NAME: wordpress
+       VIRTUAL_HOST: mywordpress.local 
+     networks:
+       - wordpress_nw
+
+   joomla:
+     depends_on:
+       - db_joomla
+       - nginx-proxy
+     image: joomla:latest
+     restart: always
+     expose:
+       - 80
+     environment:
+       JOOMLA_DB_HOST: db_joomla:3306
+       JOOMLA_DB_USER: joomla 
+       JOOMLA_DB_PASSWORD: joomla 
+       JOOMLA_DB_NAME: joomla 
+       VIRTUAL_HOST: myjoomla.local 
+     networks:
+       - joomla_nw
+
+   db_joomla:
+     image: mariadb:10.2
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: somejoomla
+       MYSQL_DATABASE: joomla 
+       MYSQL_USER: joomla 
+       MYSQL_PASSWORD: joomla 
+     volumes:
+       - vm_joomla:/var/lib/mysql
+     networks:
+       - joomla_nw
+networks:
+  joomla_nw:
+    driver: bridge
+  wordpress_nw:
+    driver: bridge
+volumes:
+    vm_wordpress: {}
+    vm_joomla: {}
+
