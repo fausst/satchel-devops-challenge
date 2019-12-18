@@ -1,0 +1,48 @@
+version: '3.3'
+
+services:
+   db:
+     image: mariadb:10.2
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: somewordpress
+       MYSQL_DATABASE: wordpress
+       MYSQL_USER: wordpress
+       MYSQL_PASSWORD: wordpress
+     ports:
+       - 3306
+       - 3307
+     networks:
+       - isolated_nw
+   db-backup:
+     image: mariadb:10.2
+     environment:
+       MYSQL_ROOT_PASSWORD: somewordpress
+       MYSQL_DATABASE: wordpress
+       MYSQL_USER: wordpress
+       MYSQL_PASSWORD: wordpress
+       MYSQL_HOST: db 
+     command: bash -c "sleep 10 && mkdir -p /backups && mysqldump --host db --user=wordpress -pwordpress wordpress >/backups/wordpress.sql"
+     volumes:
+             - "./backup:/backups"
+     networks:
+       - isolated_nw
+
+   wordpress:
+     depends_on:
+       - db
+     image: wordpress:latest
+     ports:
+       - "8000:80"
+     restart: always
+     environment:
+       WORDPRESS_DB_HOST: db:3306
+       WORDPRESS_DB_USER: wordpress
+       WORDPRESS_DB_PASSWORD: wordpress
+       WORDPRESS_DB_NAME: wordpress
+     networks:
+       - isolated_nw
+networks:
+  isolated_nw:
+    driver: bridge
+
