@@ -4,7 +4,6 @@ pipeline {
         dockerfile {
             filename 'Dockerfile'
             dir '../01-docker/etcd/'
-            label 'my-defined-label'
         }
     }
     stages {
