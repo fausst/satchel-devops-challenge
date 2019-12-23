@@ -1,9 +1,16 @@
 pipeline {
-    agent { docker { image 'python:3.5.1' } }
+    agent {
+    // Equivalent to "docker build -f Dockerfile.build --build-arg version=1.0.2 ./build/
+        dockerfile {
+            filename 'Dockerfile'
+            dir '../01-docker/etcd/'
+            label 'my-defined-label'
+        }
+    }
     stages {
         stage('build') {
             steps {
-                sh 'python --version'
+                sh 'etcd'
             }
         }
     }
