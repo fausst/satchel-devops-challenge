@@ -1,0 +1,20 @@
+- name: Running apt update
+  apt: update_cache=yes
+
+- name: Running apt upgrade
+  apt: upgrade=dist
+
+- name: Installing required packages
+  apt: name={{item}} state=present
+  with_items:
+   - fail2ban
+   - postgresql
+   - postgresql-client
+   - git
+   - python-pip
+   - rdiff-backup
+   - libpq-dev
+   - python-dev
+   - gunicorn
+   - supervisor 
+   - nginx

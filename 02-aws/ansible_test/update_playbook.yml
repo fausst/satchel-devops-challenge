@@ -1,0 +1,57 @@
+#Django app pull
+- hosts: all
+  become: yes
+  become_user: ubuntu
+  gather_facts: no
+  tasks:
+  - name: pull branch master
+    git:
+      repo='{{ repo_url }}/{{ repo }}.git'
+      dest={{ repo_dir }}
+      force=yes
+
+- name: Making some confs... 
+  hosts: all
+  become: yes
+  become_user: root 
+  gather_facts: no
+  tasks:
+  - name: get public IP
+    ipify_facts:
+    register: public_ip
+
+  - name: create static_root dir
+    file: path={{ static_dir }} state=directory mode=0755
+
+  - name: gunicorn_start
+    template: src=./config/templates/gunicorn_start dest=/home/ubuntu/django_test/django/yourproject/gunicorn_start
+
+  - name: Change gunicorn_start permissions
+    file:
+      path: /home/ubuntu/django_test/django/yourproject/gunicorn_start 
+      mode: '0744'
+
+  - name: Modifing http messagge
+    lineinfile:
+      path: "{{ django_dir }}/{{ django_project }}/views.py"
+      regexp: '.+HttpResponse'
+      line: "    return HttpResponse('Hello world FROM SERVER {{ public_ip['ansible_facts']['ipify_public_ip'] }}!')"
+
+  - name: copy settnigs/production.py
+    template: src=./config/templates/production.py dest=/home/ubuntu/django_test/django/yourproject/settings/production.py
+
+
+- name: restart nginx and supervisor 
+  hosts: all 
+  become: yes
+  become_user: root
+  gather_facts: no 
+  tasks:
+    - name: supervisor reload
+      supervisorctl: name=yourproject state=present
+
+    - name: supervisor update and restart 
+      supervisorctl: name=yourproject state=restarted
+
+    - name: nginx restart
+      service: name=nginx state=restarted

@@ -1,0 +1,29 @@
+- name: nginx config file
+  template: src=../templates/nginx.conf dest=/etc/nginx/sites-enabled/{{ django_project }}
+  register: nginx_config
+
+- name: supervisor config file
+  template: src=../templates/supervisor.conf dest=/etc/supervisor/conf.d/yourproject.conf
+
+- name: copy gunicorn_start 
+  template: src=../templates/gunicorn_start dest=/home/ubuntu/django_test/django/yourproject/gunicorn_start
+
+- name: copy settnigs/production.py
+  template: src=../templates/production.py dest=/home/ubuntu/django_test/django/yourproject/settings/production.py
+
+- name: Change gunicorn_start permissions
+  file:
+    path: /home/ubuntu/django_test/django/yourproject/gunicorn_start 
+    mode: '0744'
+
+- name: increasing server_names_size 
+  lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: '.+erver_names_hash_bucket_size'
+    line: server_names_hash_bucket_size 128;
+
+- name: "Pointing nginx to ELB"
+  lineinfile:
+    path: "/etc/nginx/sites-enabled/{{ django_project }}"
+    regexp: '.+server_name'
+    line: "server_name {{ hostvars['DUMMY_HOST']['my_elb']['elb']['dns_name'] }};"

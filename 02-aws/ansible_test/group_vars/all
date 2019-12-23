@@ -1,0 +1,23 @@
+#EC2 vars
+region: us-east-2
+instance_type: t2.nano
+ami: ami-0c929bde1796e1484 #Ubuntu 14.04 LTS  
+default_subnet: subnet-8dd537e6
+env: demo
+pem_key: my_key_pair # key.pem
+
+#Postgresql vars
+dbname: django 
+dbuser:  postgres 
+dbpassword: "{{ lookup('password', 'postgresqlpasswd') }}"
+app_code_user: "postgres" # remote user
+
+#Django vars
+#repo_url: ssh://git@github.com/fausst/
+repo_url: 'https://github.com/fausst'
+repo: django_test
+home_dir: /home/ubuntu
+repo_dir: "{{ home_dir }}/{{ repo }}"
+django_dir: "{{ repo_dir }}/django"
+static_dir: "{{ home_dir }}/static"
+django_project: yourproject

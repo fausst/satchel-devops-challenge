@@ -1,0 +1,25 @@
+- name: Make sure we have a 'wheel' group
+  group:
+    name: wheel
+    state: present
+
+- name: Allow 'wheel' group to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%wheel'
+    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+
+- name: Add sudoers users to wheel group
+  user: name={{ app_code_user }} groups=wheel append=yes state=present
+
+- name: Make sure user is on server and generate ssh key for it
+  user: name={{ app_code_user }}
+        generate_ssh_key=yes
+
+- name: Add public keys for developers
+  authorized_key: user={{ app_code_user }}
+                  key="{{ lookup('file', item) }}"
+  with_fileglob:
+    - ./public_keys/*.pub

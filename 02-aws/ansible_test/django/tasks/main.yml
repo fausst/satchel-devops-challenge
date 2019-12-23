@@ -1,0 +1,11 @@
+- name: create static_root dir
+  file: path={{ static_dir }} state=directory mode=0755
+
+- name: django collectstatic
+  shell: ./manage.py collectstatic --noinput chdir={{ django_dir }}
+
+- name: django migrate
+  shell: ./manage.py migrate --noinput chdir={{ django_dir }}
+
+#- name: django loaddata
+#  shell: ./django-admin.py loaddata postgres chdir={{ django_dir }}
