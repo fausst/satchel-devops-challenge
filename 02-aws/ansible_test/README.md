@@ -59,7 +59,7 @@ Some considerations to keep in mind:
 
 - A dynamic inventory has been used (ec2.py,ec2.ini)
 
-- Application writted in Django
+- Application written in Django
 
 - Launch command: ansible-playbook site.yml --private-key /home/ubuntu/my_key_pair.pem
 
